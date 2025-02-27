@@ -1,0 +1,9 @@
+pandas
+numpy
+polygon-api-client
+sqlalchemy
+flask
+flask-SQLAlchemy
+requests
+flask-marshmallow
+marshmallow-sqlalchemy
