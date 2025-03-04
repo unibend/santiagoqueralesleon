@@ -9,8 +9,10 @@
 <body>
     <h1>Client-Side CRUD with IndexedDB</h1>
     <input type="text" id="itemInput" placeholder="Enter item">
-    <button onclick="addItem()">Add Item</button>
+    <button id="addButton">Add Item</button>
     <ul id="itemList"></ul>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+    <!-- Ensure script loads after HTML -->
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
 </body>
 </html>
