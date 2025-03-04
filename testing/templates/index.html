@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Client Management</h1>
+    <form id="clientForm">
+        <input type="text" id="name" placeholder="Name" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <button type="submit">Add Client</button>
+    </form>
+    <ul id="clientList"></ul>
+
+    <script>
+        async function fetchClients() {
+            const response = await fetch('/clients');
+            const clients = await response.json();
+            const clientList = document.getElementById('clientList');
+            clientList.innerHTML = '';
+            clients.forEach(client => {
+                const li = document.createElement('li');
+                li.textContent = `${client.name} - ${client.email}`;
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Edit';
+                editButton.onclick = () => editClient(client.id, client.name, client.email);
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.onclick = () => deleteClient(client.id);
+                li.appendChild(editButton);
+                li.appendChild(deleteButton);
+                clientList.appendChild(li);
+            });
+        }
+
+        async function addClient(event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            await fetch('/clients', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email })
+            });
+            fetchClients();
+        }
+
+        async function editClient(id, name, email) {
+            const newName = prompt('Enter new name:', name);
+            const newEmail = prompt('Enter new email:', email);
+            if (newName && newEmail) {
+                await fetch(`/clients/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: newName, email: newEmail })
+                });
+                fetchClients();
+            }
+        }
+
+        async function deleteClient(id) {
+            await fetch(`/clients/${id}`, { method: 'DELETE' });
+            fetchClients();
+        }
+
+        document.getElementById('clientForm').onsubmit = addClient;
+        fetchClients();
+    </script>
+</body>
+</html>
