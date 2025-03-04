@@ -1,24 +1,29 @@
 let db;
 
-// Open (or create) the database
-const request = indexedDB.open("CRUD_DB", 1);
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("DOM loaded, initializing IndexedDB...");
 
-request.onupgradeneeded = function(event) {
-    db = event.target.result;
-    if (!db.objectStoreNames.contains("items")) {
-        db.createObjectStore("items", { keyPath: "id", autoIncrement: true });
-    }
-};
+    const request = indexedDB.open("CRUD_DB", 1);
 
-request.onsuccess = function(event) {
-    db = event.target.result;
-    console.log("Database opened successfully.");
-    displayItems();
-};
+    request.onupgradeneeded = function(event) {
+        db = event.target.result;
+        if (!db.objectStoreNames.contains("items")) {
+            db.createObjectStore("items", { keyPath: "id", autoIncrement: true });
+        }
+    };
 
-request.onerror = function(event) {
-    console.error("Database error:", event.target.error);
-};
+    request.onsuccess = function(event) {
+        db = event.target.result;
+        console.log("Database opened successfully.");
+        displayItems(); // Show stored items on page load
+    };
+
+    request.onerror = function(event) {
+        console.error("Database error:", event.target.error);
+    };
+
+    document.getElementById("addButton").addEventListener("click", addItem);
+});
 
 function addItem() {
     let input = document.getElementById("itemInput");
@@ -34,8 +39,8 @@ function addItem() {
 
     request.onsuccess = function() {
         console.log("Item added:", itemName);
-        input.value = "";
-        displayItems();
+        input.value = ""; // Clear input field
+        displayItems(); // Refresh list after adding
     };
 
     request.onerror = function() {
@@ -50,7 +55,8 @@ function displayItems() {
 
     request.onsuccess = function() {
         let list = document.getElementById("itemList");
-        list.innerHTML = "";
+        list.innerHTML = ""; // Clear list before updating
+
         request.result.forEach(item => {
             let li = document.createElement("li");
             li.textContent = item.name;
@@ -58,6 +64,7 @@ function displayItems() {
             // Delete button
             let deleteBtn = document.createElement("button");
             deleteBtn.textContent = "Delete";
+            deleteBtn.classList.add("delete");
             deleteBtn.onclick = function() {
                 deleteItem(item.id);
             };
@@ -79,7 +86,7 @@ function deleteItem(id) {
 
     request.onsuccess = function() {
         console.log("Item deleted:", id);
-        displayItems();
+        displayItems(); // Refresh list after deleting
     };
 
     request.onerror = function() {
